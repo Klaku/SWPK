@@ -1,0 +1,98 @@
+const express = require("express");
+const bodyParser = require("body-parser");
+const cors = require("cors");
+const { IsValidPhoneNumber } = require("./helpers");
+const uuid = require("uuid");
+const http = require("http");
+
+//Konfiguracja Express
+const app = express();
+app.use(cors());
+app.use(bodyParser.json());
+
+const Dialer = require("dialer").Dialer;
+
+//Konfiguracja Web Sockets
+const server = http.createServer(app);
+const { Server } = require("socket.io");
+const io = new Server(server);
+var clients = [];
+io.on("connection", (socket) => {
+  console.log("Socket Event: connection");
+  socket.on("disconnect", () => {
+    console.log("Socket Event: disconnect");
+  });
+  socket.on("Login", (object) => {
+    console.log("Socket Event: Login", object);
+    const client = {
+      id: uuid.v4(),
+      name: object.name,
+      phone: object.phone,
+    };
+    clients.push(client);
+    socket.emit("Login", client);
+    socket.emit("ListOfAvailableUsers", clients);
+    socket.broadcast.emit("ListOfAvailableUsers", clients);
+  });
+  socket.on("Logout", (object) => {
+    console.log("Socket Event: Login", object);
+    clients = clients.filter((x) => x.id != object.id);
+    socket.broadcast.emit("ListOfAvailableUsers", clients);
+  });
+  socket.on("Info", (id) => {
+    let b = bridges.find((x) => x.id == id);
+    if (typeof b != "undefined" && b != null) {
+      console.log(b);
+    }
+  });
+});
+
+//Konfiguracja Dialera
+Dialer.configure({
+  url: "###",
+  login: "###",
+  password: "###",
+});
+
+let bridges = [];
+app.get("/clients", (req, rep) => {
+  rep.json(clients);
+});
+app.post("/bridge", async (req, rep) => {
+  if (!IsValidPhoneNumber(req.body.source)) {
+    rep.send({
+      error: true,
+      message: "[source] number not valid",
+    });
+    console.error(`[source] number bad format exception`);
+    return;
+  }
+  if (!IsValidPhoneNumber(req.body.destination)) {
+    console.error(`[destination] number bad format exception`);
+    rep.send({
+      error: true,
+      message: "[destination] number not valid",
+    });
+    return;
+  }
+
+  const { source, destination } = req.body;
+  try {
+    let bridge = await Dialer.call(source, destination);
+    let id = uuid.v4();
+    bridges.push({
+      id,
+      bridge,
+    });
+    console.log(`Bridge ${id} created for ${source} - ${destination}`);
+    rep.json({ id: id });
+  } catch (Exception) {
+    console.error(`Bridge Creation failed ${Exception}`);
+    rep.send({
+      error: true,
+      message: Exception,
+    });
+  }
+});
+
+server.listen(3001);

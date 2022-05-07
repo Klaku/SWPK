@@ -1,0 +1,22 @@
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #ddd;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.h {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+}
+
+.v {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
