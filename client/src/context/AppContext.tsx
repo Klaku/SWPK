@@ -3,7 +3,7 @@ interface IAppContext {
   host: string;
 }
 const defaultContext: IAppContext = {
-  host: "http://localhost:3001",
+  host: "",
 };
 export const AppContext = React.createContext(defaultContext);
 

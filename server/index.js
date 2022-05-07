@@ -9,7 +9,7 @@ const http = require("http");
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
-
+app.use(express.static("build"));
 const Dialer = require("dialer").Dialer;
 
 //Konfiguracja Web Sockets
