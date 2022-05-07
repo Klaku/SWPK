@@ -23,26 +23,26 @@ io.on("connection", (socket) => {
     console.log("Socket Event: disconnect");
   });
   socket.on("Login", (object) => {
-    console.log("Socket Event: Login", object);
-    const client = {
+    console.log("Socket Event: Login", object); //Informuj
+    const client = { //Utwórz obiekt clienta
       id: uuid.v4(),
       name: object.name,
       phone: object.phone,
     };
-    clients.push(client);
-    socket.emit("Login", client);
-    socket.emit("ListOfAvailableUsers", clients);
-    socket.broadcast.emit("ListOfAvailableUsers", clients);
+    clients.push(client); // Dodaj clienta do tablicy
+    socket.emit("Login", client); // poinformuj clienta o otrzymanym unikalnym ID
+    socket.emit("ListOfAvailableUsers", clients); // poinformuj nowo zalogowanego o dostępnych użytkownikach
+    socket.broadcast.emit("ListOfAvailableUsers", clients); // poinformuj wszystkich o nowym użytkowniku
   });
   socket.on("Logout", (object) => {
-    console.log("Socket Event: Login", object);
-    clients = clients.filter((x) => x.id != object.id);
-    socket.broadcast.emit("ListOfAvailableUsers", clients);
+    console.log("Socket Event: Login", object); // Informuj
+    clients = clients.filter((x) => x.id != object.id); // Zdejmij z tablicy użytkownika o danym ID
+    socket.broadcast.emit("ListOfAvailableUsers", clients); // Poinformuj pozostałych zalogowanych o zmianach
   });
   socket.on("Info", (id) => {
-    let b = bridges.find((x) => x.id == id);
+    let b = bridges.find((x) => x.id == id); // Znajdź most o odpowiednim ID
     if (typeof b != "undefined" && b != null) {
-      console.log(b);
+      /// tbd
     }
   });
 });
